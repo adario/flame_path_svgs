@@ -2,6 +2,9 @@ import 'dart:math';
 
 import 'package:flame/extensions.dart';
 
+// A copy of `convexPieces` from `flame/geometry` in the `testbed` branch of
+// the fork (feat/image-contours), which feat/path-svgs doesn't have.
+
 /// Splits a simple [polygon] into convex polygons of at most [maxVertices]
 /// vertices each, like the ones that physics engines such as Box2D need.
 ///
@@ -18,7 +21,20 @@ import 'package:flame/extensions.dart';
 /// For Box2D, [minDistance] is 4 times its linear slop and [minWidth] twice
 /// it, see `b2ComputeHull`.
 ///
-/// The pieces reuse the vertices of the [polygon], in the same direction.
+/// The pieces are made of copies of the vertices of the [polygon], going in
+/// the same direction, so they can be handed to the consumers that change
+/// their vertices in place, like a `PolygonHitbox`.
+///
+/// The [polygon] may touch itself at its vertices, like the outline of two
+/// shapes that meet at a corner, which is split there into simple polygons:
+/// a hole that touches the outline at a vertex is filled, though. The parts
+/// of a [polygon] that crosses itself may be left out.
+///
+/// The cost grows about with the square of the number of vertices, so it is
+/// meant to be done when loading, not in the game loop. The polygons of a
+/// `PathComponent` are already simplified according to their sampling, while
+/// a [polygon] made by hand should not have a vertex for each pixel or each
+/// tiny step along a curve.
 List<List<Vector2>> convexPieces(
   List<Vector2> polygon, {
   int maxVertices = 8,
@@ -31,19 +47,63 @@ List<List<Vector2>> convexPieces(
   if (n < 3) {
     return const [];
   }
-  // The pieces are worked out on indices of vertices going counterclockwise,
-  // that is with a positive area, and turned back into vertices at the end.
-  final isClockwise = _doubleArea(vertices) < 0;
-  final indices = List.generate(n, (i) => isClockwise ? n - 1 - i : i);
-  final pieces = _triangulate(vertices, indices);
-  // Corners that are reflex by less than half of the minimum width are
-  // accepted as convex, since the engine straightens them anyway.
-  _merge(vertices, pieces, maxVertices, minWidth / 2);
+  // The pieces are worked out on indices of vertices going clockwise on the
+  // screen, that is with a positive signed area, and turned back into
+  // vertices at the end.
+  final isReversed = _signedArea(vertices) < 0;
+  final indices = List.generate(n, (i) => isReversed ? n - 1 - i : i);
+  final pieces = [
+    for (final loop in _splitAtTouches(vertices, indices, minDistance))
+      // The loops that go the other way are holes that touch the outline,
+      // which the other loops already cover.
+      if (_signedArea([for (final i in loop) vertices[i]]) > 0)
+        ..._triangulate(vertices, loop),
+  ];
+  _merge(vertices, pieces, maxVertices);
   return [
     for (final piece in pieces)
       if (_isWideEnough(vertices, piece, minDistance, minWidth))
-        [for (final i in isClockwise ? piece.reversed : piece) vertices[i]],
+        [
+          for (final i in isReversed ? piece.reversed : piece)
+            vertices[i].clone(),
+        ],
   ];
+}
+
+/// Splits the polygon given by the [indices] of [vertices] where it
+/// touches itself, that is where two of its vertices that are not
+/// consecutive are welded, into loops that do not touch themselves.
+///
+/// Ear clipping can get stuck on a polygon that touches itself, which would
+/// leave the rest of it out.
+///
+/// The last vertices of a loop that are welded to its first one are left out,
+/// like consecutive vertices are, since a loop that was split off ends next to
+/// the vertex where the polygon touches itself.
+List<List<int>> _splitAtTouches(
+  List<Vector2> vertices,
+  List<int> indices,
+  double minDistance,
+) {
+  var loop = indices;
+  while (loop.length > 1 &&
+      _isWelded(vertices[loop.last], vertices[loop.first], minDistance)) {
+    loop = loop.sublist(0, loop.length - 1);
+  }
+  for (var a = 0; a < loop.length; a++) {
+    for (var b = a + 2; b < loop.length; b++) {
+      if (_isWelded(vertices[loop[a]], vertices[loop[b]], minDistance)) {
+        return [
+          ..._splitAtTouches(vertices, loop.sublist(a, b), minDistance),
+          ..._splitAtTouches(vertices, [
+            ...loop.sublist(b),
+            ...loop.sublist(0, a),
+          ], minDistance),
+        ];
+      }
+    }
+  }
+  return [loop];
 }
 
 /// The vertices of the [polygon] without the ones closer than [minDistance]
@@ -90,33 +150,36 @@ bool _isWelded(Vector2 a, Vector2 b, double minDistance) {
   return distance == 0 || distance < minDistance;
 }
 
-/// Twice the signed area of the [polygon], positive if it is counterclockwise.
-double _doubleArea(List<Vector2> polygon) {
+/// The signed area of the [polygon], which is positive when its vertices go
+/// clockwise in the screen coordinate system, where the y axis points down,
+/// and negative when they go counterclockwise.
+double _signedArea(List<Vector2> polygon) {
   var area = 0.0;
   for (var i = 0; i < polygon.length; i++) {
     final a = polygon[i];
     final b = polygon[(i + 1) % polygon.length];
     area += a.x * b.y - b.x * a.y;
   }
-  return area;
+  return area / 2;
 }
 
-/// Twice the signed area of the triangle [a], [b], [c], positive if it is
-/// counterclockwise, that is if [b] is a convex corner.
+/// Twice the signed area of the triangle [a], [b], [c], positive if it goes
+/// clockwise on the screen, that is if [b] is a convex corner of a polygon
+/// that goes clockwise on the screen.
 double _cross(Vector2 a, Vector2 b, Vector2 c) {
   return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-/// Splits the counterclockwise polygon given by the [indices] of [vertices]
-/// into triangles, by clipping its ears.
+/// Splits the polygon given by the [indices] of [vertices], which goes
+/// clockwise on the screen, into triangles, by clipping its ears.
 List<List<int>> _triangulate(List<Vector2> vertices, List<int> indices) {
   final remaining = List.of(indices);
   final triangles = <List<int>>[];
   while (remaining.length >= 3) {
     final ear = _findEar(vertices, remaining);
     if (ear == -1) {
-      // Only a polygon that crosses itself has no ears; what is left of it is
-      // left out.
+      // A polygon that crosses itself may have no ears left, while a simple
+      // one always has; what is left of it is left out.
       break;
     }
     final m = remaining.length;
@@ -171,13 +234,8 @@ int _findEar(List<Vector2> vertices, List<int> remaining) {
 }
 
 /// Merges the [pieces] that share an edge, as long as the result is convex
-/// within the [tolerance] and has at most [maxVertices] vertices.
-void _merge(
-  List<Vector2> vertices,
-  List<List<int>> pieces,
-  int maxVertices,
-  double tolerance,
-) {
+/// and has at most [maxVertices] vertices.
+void _merge(List<Vector2> vertices, List<List<int>> pieces, int maxVertices) {
   var hasMerged = true;
   while (hasMerged) {
     hasMerged = false;
@@ -186,7 +244,7 @@ void _merge(
         final merged = _union(pieces[i], pieces[j]);
         if (merged != null &&
             merged.length <= maxVertices &&
-            _isConvex(vertices, merged, tolerance)) {
+            _isConvex(vertices, merged)) {
           pieces[i] = merged;
           pieces.removeAt(j);
           hasMerged = true;
@@ -198,8 +256,8 @@ void _merge(
   }
 }
 
-/// The union of the counterclockwise pieces [a] and [b] if they share an
-/// edge, or null otherwise.
+/// The union of the pieces [a] and [b], which go clockwise on the screen, if
+/// they share an edge, or null otherwise.
 List<int>? _union(List<int> a, List<int> b) {
   for (var k = 0; k < a.length; k++) {
     final from = a[k];
@@ -219,15 +277,15 @@ List<int>? _union(List<int> a, List<int> b) {
   return null;
 }
 
-/// Whether the counterclockwise [piece] has no reflex corners, except for the
-/// ones closer than the [tolerance] to the line through their neighbors.
-bool _isConvex(List<Vector2> vertices, List<int> piece, double tolerance) {
+/// Whether the [piece], which goes clockwise on the screen, has no reflex
+/// corners.
+bool _isConvex(List<Vector2> vertices, List<int> piece) {
   final m = piece.length;
   for (var i = 0; i < m; i++) {
     final a = vertices[piece[(i - 1 + m) % m]];
     final b = vertices[piece[i]];
     final c = vertices[piece[(i + 1) % m]];
-    if (_cross(a, b, c) < -tolerance * a.distanceTo(c)) {
+    if (_cross(a, b, c) < 0) {
       return false;
     }
   }
