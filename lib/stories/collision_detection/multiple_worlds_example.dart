@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flame_path_shapes/commons/ember.dart';
+import 'package:flame_path_svgs/commons/ember.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';

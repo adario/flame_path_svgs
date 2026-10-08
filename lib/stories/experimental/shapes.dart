@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:flame_path_shapes/commons/test_path_knob.dart';
+import 'package:flame_path_svgs/commons/test_path_knob.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/extensions.dart' show Aabb2Extension, PathExtension;

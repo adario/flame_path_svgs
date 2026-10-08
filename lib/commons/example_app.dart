@@ -1,4 +1,4 @@
-import 'package:flame_path_shapes/commons/example_use_case.dart';
+import 'package:flame_path_svgs/commons/example_use_case.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:widgetbook/widgetbook.dart';

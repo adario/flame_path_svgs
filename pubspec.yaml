@@ -1,4 +1,4 @@
-name: flame_path_shapes
+name: flame_path_svgs
 description: "Testbed for the proposed Flame path/shape changes"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 

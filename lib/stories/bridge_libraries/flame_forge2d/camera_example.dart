@@ -1,6 +1,6 @@
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/domino_example.dart';
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/sprite_body_example.dart';
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/style.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/domino_example.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/sprite_body_example.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/style.dart';
 import 'package:flame/events.dart';
 
 class CameraExample() extends Forge2DExampleGame {

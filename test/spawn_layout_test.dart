@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart' as forge2d;
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/spawn_layout.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/spawn_layout.dart';
 import 'package:flame_test/test_paths.dart';
 import 'package:flutter_test/flutter_test.dart';
 

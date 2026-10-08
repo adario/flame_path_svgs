@@ -1,4 +1,4 @@
-import 'package:flame_path_shapes/commons/ember.dart';
+import 'package:flame_path_svgs/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';

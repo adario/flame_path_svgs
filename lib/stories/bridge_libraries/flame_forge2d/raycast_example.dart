@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/boundaries.dart';
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/style.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/boundaries.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/style.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';

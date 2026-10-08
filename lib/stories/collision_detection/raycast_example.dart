@@ -1,4 +1,4 @@
-import 'package:flame_path_shapes/commons/paths_creation_mixin.dart';
+import 'package:flame_path_svgs/commons/paths_creation_mixin.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';

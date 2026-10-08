@@ -1,4 +1,4 @@
-package com.example.flame_path_shapes
+package com.example.flame_path_svgs
 
 import io.flutter.embedding.android.FlutterActivity
 

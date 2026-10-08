@@ -1,5 +1,5 @@
-import 'package:flame_path_shapes/commons/test_path_knob.dart';
-import 'package:flame_path_shapes/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
+import 'package:flame_path_svgs/commons/test_path_knob.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flame_test/test_paths.dart';
 

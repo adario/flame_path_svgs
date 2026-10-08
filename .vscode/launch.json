@@ -11,18 +11,18 @@
             "program": "lib/main.dart"
         },
         {
-            "name": "flame_path_shapes",
+            "name": "flame_path_svgs",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "flame_path_shapes (profile mode)",
+            "name": "flame_path_svgs (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "flame_path_shapes (release mode)",
+            "name": "flame_path_svgs (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

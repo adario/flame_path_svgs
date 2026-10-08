@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame_path_shapes/commons/position_paint_component.dart';
-import 'package:flame_path_shapes/commons/rounded_rect_component.dart';
+import 'package:flame_path_svgs/commons/position_paint_component.dart';
+import 'package:flame_path_svgs/commons/rounded_rect_component.dart';
 import 'package:flutter/foundation.dart';
 
 class SliderButtonComponent extends PositionComponent

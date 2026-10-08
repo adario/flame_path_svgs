@@ -1,4 +1,4 @@
-import 'package:flame_path_shapes/stories/input/joystick_player.dart';
+import 'package:flame_path_svgs/stories/input/joystick_player.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';

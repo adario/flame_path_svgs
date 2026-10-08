@@ -2,7 +2,7 @@
 
 ## What this is
 
-`flame_path_shapes`: Flutter/Flame testbed app for a proposed Flame feature — using `Path` objects as shapes (render + hitbox) and importing SVG files as `Path`s. Not published (`publish_to: none`). Visual demo: `README.md` / `screenshots/flame_path_shapes.gif` (modified `RaysInShapeExample`).
+`flame_path_svgs`: Flutter/Flame testbed app for a proposed Flame feature — using `Path` objects as shapes (render + hitbox) and importing SVG files as `Path`s. Not published (`publish_to: none`). Visual demo: `README.md` / `screenshots/flame_path_svgs.gif` (modified `RaysInShapeExample`).
 
 It is a trimmed copy of the Flame `examples` app (Widgetbook-based, migrated from Dashbook like upstream commit `2176fb6d`), with the examples that deal with shapes/hitboxes/gestures rewritten to use the new path APIs.
 

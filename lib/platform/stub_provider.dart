@@ -1,4 +1,4 @@
-import 'package:flame_path_shapes/platform/page_provider.dart';
+import 'package:flame_path_svgs/platform/page_provider.dart';
 
 class PageProviderImpl extends PageProvider {
   @override

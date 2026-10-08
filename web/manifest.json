@@ -1,6 +1,6 @@
 {
-    "name": "flame_path_shapes",
-    "short_name": "flame_path_shapes",
+    "name": "flame_path_svgs",
+    "short_name": "flame_path_svgs",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

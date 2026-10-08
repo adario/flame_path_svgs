@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flame_path_shapes/stories/experimental/layout_component_example_size.dart';
+import 'package:flame_path_svgs/stories/experimental/layout_component_example_size.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/experimental.dart';
