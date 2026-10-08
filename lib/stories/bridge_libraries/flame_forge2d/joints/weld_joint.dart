@@ -1,6 +1,7 @@
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/balls.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/boxes.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/joint_renderer.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/style.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -9,8 +10,9 @@ import 'package:material_ui/material_ui.dart';
 
 class WeldJointExample() extends Forge2DExampleGame {
   static const description = '''
-    This example shows how to use a `WeldJoint`. Tap the screen to add a 
-    ball to test the bridge built using a `WeldJoint`
+    This example shows how to use a `WeldJoint`. Tap the screen to add a
+    ball or the SVG file of a test path, in turns, to test the bridge built
+    using a `WeldJoint`.
   ''';
 
   this : super(world: WeldJointWorld());
@@ -18,7 +20,7 @@ class WeldJointExample() extends Forge2DExampleGame {
 
 class WeldJointWorld()
     extends Forge2DWorld
-    with TapCallbacks, HasGameRef<Forge2DGame> {
+    with TapCallbacks, HasGameRef<Forge2DGame>, HasSvgTestPaths {
   final pillarHeight = 20.0;
   final pillarWidth = 5.0;
 
@@ -104,10 +106,32 @@ class WeldJointWorld()
     add(JointRenderer(joint: joint));
   }
 
+  /// The bodies that the taps add, which cycle on each tap.
+  final _shapes = BallOrTestPath();
+
+  /// The index of the color of the next test path.
+  var _tint = 0;
+
   @override
   Future<void> onTapDown(TapDownEvent info) async {
     super.onTapDown(info);
-    final ball = Ball(info.localPosition, radius: 5);
-    add(ball);
+    const radius = 5.0;
+    // A test path is slightly larger than the ball, and moves like it.
+    final size = Vector2.all(radius * 2 + 1);
+    final shape = _shapes.next();
+    add(
+      shape == null
+            ? Ball(info.localPosition, radius: radius)
+            : PathShape(
+                info.localPosition,
+                pathOf(shape, size.toSize()),
+                contour: null,
+                size: size,
+                initialAngle: 0,
+                material: SurfaceMaterial(restitution: 0.7),
+                angularDamping: 0.8,
+              )
+        ..paint = (Paint()..color = ExampleColors.dynamicColor(_tint++)),
+    );
   }
 }

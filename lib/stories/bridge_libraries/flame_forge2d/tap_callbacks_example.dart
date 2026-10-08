@@ -10,7 +10,6 @@ import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
-import 'package:flame_test/test_paths.dart';
 
 class TapCallbacksExample({final int? shape})
     extends Forge2DExampleGame
@@ -19,8 +18,9 @@ class TapCallbacksExample({final int? shape})
     In this example we show how to use Flame's TapCallbacks mixin to react to
     taps on `BodyComponent`s.
     Tap the ball to give it a random impulse. The Shape knob replaces the ball
-    with a test path, or the other way around, which collides as the convex
-    pieces of its outline that the Show pieces knob draws.
+    with the SVG file of a test path, or the other way around. It collides as
+    the convex pieces of all of its contours, but the ones inside of the
+    largest one, which the Show pieces knob draws.
   ''';
 
   this
@@ -50,7 +50,8 @@ class TapCallbacksExample({final int? shape})
     }
     return TappablePathShape(
       position,
-      TestPaths.byIndex(shape, shapeSize.toSize()),
+      pathOf(shape, shapeSize.toSize()),
+      contour: null,
       size: shapeSize,
     );
   }
@@ -70,9 +71,12 @@ class TappableBall(super.position) extends Ball with TapCallbacks {
 }
 
 /// A [PathShape] that reacts to the taps like the [TappableBall].
-class TappablePathShape(super.initialPosition, super.path, {super.size})
-    extends PathShape
-    with TapCallbacks {
+class TappablePathShape(
+  super.initialPosition,
+  super.path, {
+  super.size,
+  super.contour,
+}) extends PathShape with TapCallbacks {
   this {
     paint = BasicPalette.white.paint();
   }

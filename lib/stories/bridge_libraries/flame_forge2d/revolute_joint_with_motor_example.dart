@@ -19,7 +19,9 @@ class RevoluteJointWithMotorExample() extends Forge2DExampleGame {
     
     If you tap the screen some colorful balls and test path shapes are added
     and will interact with the bodies tied to the revolute joint once they
-    have fallen down the funnel.
+    have fallen down the funnel. The shapes come from the SVG files of the
+    test paths, and each one collides as all of its contours, but the ones
+    inside of the largest one.
 
     The frame rate is shown at the top left, and the number of bodies at the
     top right.
@@ -30,7 +32,7 @@ class RevoluteJointWithMotorExample() extends Forge2DExampleGame {
 
 class RevoluteJointWithMotorWorld()
     extends Forge2DWorld
-    with TapCallbacks, HasGameRef<Forge2DGame>, BodiesHud {
+    with TapCallbacks, HasGameRef<Forge2DGame>, HasSvgTestPaths, BodiesHud {
   final random = Random();
 
   /// The indices in [TestPaths.names] of the test paths that are added.
@@ -119,7 +121,8 @@ class RevoluteJointWithMotorWorld()
       size.length / 2,
       (position) => PathShape(
         position,
-        TestPaths.byIndex(shape, size.toSize()),
+        pathOf(shape, size.toSize()),
+        contour: null,
         size: size,
       )..paint = (Paint()..color = color),
     );

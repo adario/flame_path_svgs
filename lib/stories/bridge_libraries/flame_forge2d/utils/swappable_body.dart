@@ -1,11 +1,15 @@
+import 'dart:ui';
+
+import 'package:flame_path_svgs/commons/svg_test_paths.dart';
 import 'package:flame_path_svgs/commons/test_path_knob.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flame_test/test_paths.dart';
 
 /// A game with a single body of the shape picked with the [testPathKnob],
-/// either a ball or a test path, which is replaced by a body of another shape
-/// whenever the knob changes; the new body takes on the motion of the old one.
+/// either a ball or the SVG file of a test path, which is replaced by a body
+/// of another shape whenever the knob changes; the new body takes on the
+/// motion of the old one.
 ///
 /// The world of the game must have [ShowPieces].
 mixin SwappableBody on Forge2DGame, TestPathSelectable {
@@ -31,6 +35,7 @@ mixin SwappableBody on Forge2DGame, TestPathSelectable {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    await SvgTestPaths.load();
     _addSwappable();
     _isReady = true;
   }
@@ -49,6 +54,10 @@ mixin SwappableBody on Forge2DGame, TestPathSelectable {
 
   @override
   void setShowPieces(bool showPieces) => _world.showPieces = showPieces;
+
+  /// The SVG file of the test path with the given [index] in
+  /// [TestPaths.names], fitted within [size], see [SvgTestPaths.byIndex].
+  Path pathOf(int index, Size size) => SvgTestPaths.byIndex(index, size);
 
   /// Adds a body of the [_shape], which replaces the current one and takes on
   /// its motion: position, angle and velocities.

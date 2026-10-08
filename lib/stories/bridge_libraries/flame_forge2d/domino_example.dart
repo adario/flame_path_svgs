@@ -8,7 +8,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
-import 'package:flame_test/test_paths.dart';
 
 class DominoExample({bool showPieces = false}) extends Forge2DExampleGame {
   static const description = '''
@@ -16,8 +15,10 @@ class DominoExample({bool showPieces = false}) extends Forge2DExampleGame {
     planks, level by level, with braces at the edges.
 
     The tower stands on its own until you tap the screen, which drops a random
-    shape, different from the last one, that topples it. The shape collides as
-    the convex pieces of its outline, which the Show pieces knob draws.
+    shape, different from the last one, that topples it. The shapes come from
+    the SVG files of the test paths, and each one collides as the convex
+    pieces of all of its contours, but the ones inside of the largest one,
+    which the Show pieces knob draws.
 
     The frame rate is shown at the top left, and the number of bodies at the
     top right.
@@ -33,7 +34,12 @@ class DominoExample({bool showPieces = false}) extends Forge2DExampleGame {
 
 class DominoExampleWorld({bool showPieces = false})
     extends Forge2DWorld
-    with TapCallbacks, HasGameRef<Forge2DGame>, ShowPieces, BodiesHud {
+    with
+        TapCallbacks,
+        HasGameRef<Forge2DGame>,
+        ShowPieces,
+        HasSvgTestPaths,
+        BodiesHud {
   this {
     this.showPieces = showPieces;
   }
@@ -146,7 +152,11 @@ class DominoExampleWorld({bool showPieces = false})
   void onTapDown(TapDownEvent event) {
     final position = event.localPosition;
     add(
-      PathShape(position, TestPaths.byIndex(_shapes.next(), shapeSize.toSize()))
+      PathShape(
+          position,
+          pathOf(_shapes.next(), shapeSize.toSize()),
+          contour: null,
+        )
         ..paint = (Paint()..color = ExampleColors.dynamicColor(_tint++))
         ..renderBody = showPieces,
     );

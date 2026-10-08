@@ -9,7 +9,6 @@ import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/swa
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
-import 'package:flame_test/test_paths.dart';
 import 'package:material_ui/material_ui.dart' hide Draggable;
 
 class DragCallbacksExample({final int? shape})
@@ -19,9 +18,9 @@ class DragCallbacksExample({final int? shape})
     In this example we use Flame's normal `DragCallbacks` mixin to give impulses
     to a ball when we are dragging it around. If you are interested in dragging
     bodies around, also have a look at the MouseJointExample.
-    The Shape knob replaces the ball with a test path, or the other way around,
-    which collides as the convex pieces of its outline that the Show pieces
-    knob draws.
+    The Shape knob replaces the ball with the SVG file of a test path, or the
+    other way around. It collides as the convex pieces of all of its contours,
+    but the ones inside of the largest one, which the Show pieces knob draws.
   ''';
 
   this : super(gravity: Vector2.all(0.0), world: ShowPiecesWorld());
@@ -49,7 +48,8 @@ class DragCallbacksExample({final int? shape})
     }
     return DraggablePathShape(
       position,
-      TestPaths.byIndex(shape, shapeSize.toSize()),
+      pathOf(shape, shapeSize.toSize()),
+      contour: null,
       size: shapeSize,
     );
   }
@@ -102,9 +102,12 @@ class DraggableBall(super.position) extends Ball with DragCallbacks {
 }
 
 /// A [PathShape] that reacts to the drags like the [DraggableBall].
-class DraggablePathShape(super.initialPosition, super.path, {super.size})
-    extends PathShape
-    with DragCallbacks {
+class DraggablePathShape(
+  super.initialPosition,
+  super.path, {
+  super.size,
+  super.contour,
+}) extends PathShape with DragCallbacks {
   this {
     paint = _originalPaint;
   }

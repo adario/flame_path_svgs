@@ -1,7 +1,10 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame_path_svgs/commons/convex_pieces.dart';
+import 'package:flame_path_svgs/commons/svg_test_paths.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/revolute_joint.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
 import 'package:flame_test/test_paths.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -96,7 +99,7 @@ void main() {
         for (var i = 0; i < TestPaths.count; i++) {
           final name = TestPaths.names[i];
           test('$name at ${size.x} x ${size.y} m, $pixels px/m', () {
-            final component = PathShape.contourComponent(
+            final component = PathShape.placementComponent(
               TestPaths.byIndex(i, size.toSize()),
               size,
               pixels,
@@ -129,10 +132,90 @@ void main() {
     }
   });
 
+  group('PathShape placements', () {
+    // Two disjoint squares, 1 x 1 and 2 x 2 pixels, 1 pixel apart.
+    final twoSquares = Path()
+      ..addRect(const Rect.fromLTWH(0, 0, 1, 1))
+      ..addRect(const Rect.fromLTWH(2, 0, 2, 2));
+
+    test('uses only the given contour, fitted on its own', () {
+      final component = PathShape.placementComponent(
+        twoSquares,
+        Vector2.all(2),
+        10,
+        contour: 1,
+      );
+      final pieces = PathShape.piecesOf(component);
+      expect(_totalArea(pieces), closeTo(4, 0.01));
+    });
+
+    test('uses all the contours of the whole path', () {
+      final component = PathShape.placementComponent(
+        twoSquares,
+        Vector2(4, 2),
+        10,
+        contour: null,
+      );
+      final pieces = PathShape.piecesOf(component);
+      expect(_totalArea(pieces), closeTo(1 + 4, 0.01));
+      // The pieces are spread over both squares, around the center.
+      final xs = [for (final piece in pieces) ...piece.map((v) => v.x)];
+      expect(xs.reduce(math.min), closeTo(-2, 0.01));
+      expect(xs.reduce(math.max), closeTo(2, 0.01));
+    });
+
+    test('rejects a contour that the path does not have', () {
+      expect(
+        () => PathShape.placementComponent(
+          twoSquares,
+          Vector2.all(2),
+          10,
+          contour: 2,
+        ),
+        throwsRangeError,
+      );
+    });
+
+    for (var i = 0; i < TestPaths.count; i++) {
+      final name = TestPaths.names[i];
+      test('$name as a whole path gives valid Box2D polygons', () {
+        final size = Vector2(2, 3);
+        final component = PathShape.placementComponent(
+          TestPaths.byIndex(i, size.toSize()),
+          size,
+          24,
+          contour: null,
+        );
+        final pieces = PathShape.piecesOf(component);
+        expect(pieces, isNotEmpty);
+        for (final (index, piece) in pieces.indexed) {
+          expect(
+            _box2dHull(piece, PathShape.linearSlop).length,
+            greaterThanOrEqualTo(3),
+            reason: 'piece $index: $piece',
+          );
+        }
+      });
+    }
+  });
+
   // flame_forge2d warns about the shapes of moving bodies that are less than
   // 0.1 meters across (5 speculative distances), and each piece is a shape.
-  group('PathShape pieces of the examples are large enough for Forge2D', () {
+  // The examples use the whole paths of the SVG files of the test paths.
+  group('PathShape pieces of the examples are valid and large enough', () {
+    setUpAll(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      await SvgTestPaths.load();
+    });
+
     const minSide = 5 * 4 * PathShape.linearSlop;
+    // The SVG files that have a detail smaller than that in the Domino
+    // example, where Forge2D prints its debug warning about the size once; the
+    // details are a few centimeters across on bodies of 2 x 3 meters.
+    const undersized = {
+      'alien2 in the domino example',
+      'spaceship in the domino example',
+    };
     final allPaths = TestPaths.names;
     // The size of the pieces doesn't grow steadily with the size of the
     // shape, so the whole range of random sizes is checked in small steps.
@@ -153,17 +236,36 @@ void main() {
       ('drag callbacks', Vector2.all(10), 10.0, allPaths),
       for (final size in revoluteSizes)
         ('revolute joint with motor', size, 10.0, revolutePaths),
+      (
+        'revolute joint',
+        Vector2.all(CircleShuffler.pathSize),
+        10.0,
+        BallOrTestPath.names,
+      ),
+      ('weld joint', Vector2.all(11), 10.0, BallOrTestPath.names),
     ]) {
       for (final name in paths) {
         final i = TestPaths.names.indexOf(name);
-        test('$name in the $example example, at ${size.x} m', () {
-          final component = PathShape.contourComponent(
-            TestPaths.byIndex(i, size.toSize()),
+        final description = '$name in the $example example';
+        final smallest = undersized.contains(description)
+            ? minSide / 2
+            : minSide;
+        test('$description, at ${size.x} m', () {
+          final component = PathShape.placementComponent(
+            SvgTestPaths.byIndex(i, size.toSize()),
             size,
             pixels,
+            contour: null,
           );
-          for (final piece in PathShape.piecesOf(component)) {
-            expect(_largestSide(piece), greaterThanOrEqualTo(minSide));
+          final pieces = PathShape.piecesOf(component);
+          expect(pieces, isNotEmpty);
+          for (final (index, piece) in pieces.indexed) {
+            expect(
+              _box2dHull(piece, PathShape.linearSlop).length,
+              greaterThanOrEqualTo(3),
+              reason: 'piece $index: $piece',
+            );
+            expect(_largestSide(piece), greaterThanOrEqualTo(smallest));
           }
         });
       }

@@ -127,7 +127,7 @@ class _Spec {
       _paths[random.nextInt(_paths.length)],
     );
     return PathShape.piecesOf(
-      PathShape.contourComponent(
+      PathShape.placementComponent(
         TestPaths.byIndex(index, size.toSize()),
         size,
         _pixels,
