@@ -113,7 +113,7 @@ WidgetbookComponent collisionDetectionStories() {
                   (RaysInShapeWorld.maxRays - RaysInShapeWorld.minRays) ~/
                   RaysInShapeWorld.raysStep,
             ),
-            changes: context.knobs.button(label: 'Rays', text: 'Change'),
+            changes: context.knobs.button(label: 'Change rays'),
           );
         },
         codeLink: baseLink('collision_detection/rays_in_shape_example.dart'),

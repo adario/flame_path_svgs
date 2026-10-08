@@ -13,7 +13,7 @@ import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/text.dart';
 import 'package:flame_test/test_paths.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:widgetbook/widgetbook.dart';
 
 const side = 200.0;
@@ -130,7 +130,14 @@ class _RaysInShapeStoryState extends State<RaysInShapeStory>
   }
 }
 
-class RaysInShapeExample extends FlameGame<RaysInShapeWorld> {
+class RaysInShapeExample({
+  bool rotate = false,
+  int shape = 0,
+  int rays = RaysInShapeWorld.defaultRays,
+
+  /// Called after the Rotate or Shape button has changed the world.
+  final VoidCallback? onButtonChange,
+}) extends FlameGame<RaysInShapeWorld> {
   static const description = '''
 In this example we showcase the raytrace functionality where you can see whether
 the rays are inside the shapes or not. The rays originate from small circles,
@@ -143,21 +150,14 @@ Change casts a new set of rays. On narrow screens, the Rotate, Shape and Rays
 buttons in the game do the same as the Rotate, Shape and Change knobs.
 ''';
 
-  RaysInShapeExample({
-    bool rotate = false,
-    int shape = 0,
-    int rays = RaysInShapeWorld.defaultRays,
-    this.onButtonChange,
-  }) : super(
-         world: RaysInShapeWorld(rotate: rotate, shape: shape, rays: rays),
-         camera: CameraComponent.withFixedResolution(
-           width: playArea.width,
-           height: playArea.height,
-         ),
-       );
-
-  /// Called after the Rotate or Shape button has changed the world.
-  final VoidCallback? onButtonChange;
+  this
+    : super(
+        world: RaysInShapeWorld(rotate: rotate, shape: shape, rays: rays),
+        camera: CameraComponent.withFixedResolution(
+          width: playArea.width,
+          height: playArea.height,
+        ),
+      );
 
   final TextRenderer textRenderer = TextPaint(
     style: const TextStyle(fontSize: fontSize - 1, color: Colors.white),
@@ -301,26 +301,24 @@ buttons in the game do the same as the Rotate, Shape and Change knobs.
   }
 }
 
-class RayCircleComponent extends CircleComponent
+class RayCircleComponent(
+  final Ray2 ray, {
+  super.radius,
+  super.position,
+  super.scale,
+  super.angle,
+  super.anchor,
+  super.children,
+  super.priority,
+  super.paint,
+  super.paintLayers,
+  super.key,
+}) extends CircleComponent
     with
         DragCallbacks,
         HoverCallbacks,
         TapCallbacks,
         HasWorldRef<RaysInShapeWorld> {
-  RayCircleComponent(
-    this.ray, {
-    super.radius,
-    super.position,
-    super.scale,
-    super.angle,
-    super.anchor,
-    super.children,
-    super.priority,
-    super.paint,
-    super.paintLayers,
-    super.key,
-  });
-
   RaycastResult<ShapeHitbox>? _raycastResult;
   bool get _hitScreen {
     final hitbox = _raycastResult?.hitbox;
@@ -475,8 +473,6 @@ class RayCircleComponent extends CircleComponent
     }
   }
 
-  final Ray2 ray;
-
   bool get isDragging => _isDragging || isDragged;
   bool get isHovering => _isHovering || isHovered;
 
@@ -492,9 +488,13 @@ class RayCircleComponent extends CircleComponent
   }
 }
 
-class RaysInShapeWorld extends World
+class RaysInShapeWorld({
+  bool rotate = false,
+  int shape = 0,
+  int rays = RaysInShapeWorld.defaultRays,
+}) extends World
     with HasGameRef<RaysInShapeExample>, HasCollisionDetection {
-  RaysInShapeWorld({bool rotate = false, int shape = 0, int rays = defaultRays})
+  this
     : isRotating = rotate,
       _componentIndex = shape,
       _count = rays;

@@ -7,9 +7,10 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-class RaycastLightExample extends FlameGame
+class RaycastLightExample()
+    extends FlameGame
     with
         HasCollisionDetection,
         TapCallbacks,

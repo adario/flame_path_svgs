@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
-extension ButtonKnobsBuilder on KnobsBuilder {
-  /// A knob that shows a button with the given [text] and returns the number
-  /// of times it has been pressed, so that the use case can react to a press
-  /// whenever the returned value changes.
-  int button({required String label, required String text}) {
-    return onKnobAdded(ButtonKnob(label: label, text: text)) ?? 0;
+extension ButtonKnobBuilder on KnobsBuilder {
+  /// Adds a button to the knobs panel, and returns how many times it has been
+  /// pressed, so that a use case can react to presses by comparing the count
+  /// with the previous one.
+  int button({required String label, bool enabled = true}) {
+    return onKnobAdded(ButtonKnob(label: label, enabled: enabled)) ?? 0;
   }
 }
 
-class ButtonKnob extends Knob<int?> {
-  ButtonKnob({required super.label, required this.text})
-    : super(initialValue: 0);
-
-  final String text;
+/// A knob that shows a button instead of a value, since Widgetbook doesn't
+/// provide one. Its value is the number of times the button was pressed.
+class ButtonKnob({
+  required super.label,
+  final bool enabled = true,
+}) extends Knob<int?> {
+  this : super(initialValue: 0);
 
   @override
-  List<Field> get fields => [ButtonField(name: label, text: text)];
+  List<Field> get fields => [_ButtonField(name: label, enabled: enabled)];
 
   @override
   int? valueFromQueryGroup(Map<String, String> group) {
@@ -25,25 +27,31 @@ class ButtonKnob extends Knob<int?> {
   }
 }
 
-class ButtonField extends Field<int> {
-  ButtonField({required super.name, required this.text})
+class _ButtonField({
+  required super.name,
+  required final bool enabled,
+}) extends Field<int> {
+  this
     : super(
+        type: FieldType.intInput,
         initialValue: 0,
         defaultValue: 0,
-        type: FieldType.intInput,
         codec: FieldCodec(
           toParam: (value) => value.toString(),
           toValue: (param) => param == null ? null : int.tryParse(param),
         ),
       );
 
-  final String text;
-
   @override
   Widget toWidget(BuildContext context, String group, int? value) {
-    return OutlinedButton(
-      onPressed: () => updateField(context, group, (value ?? 0) + 1),
-      child: Text(text),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: OutlinedButton(
+        onPressed: enabled
+            ? () => updateField(context, group, (value ?? 0) + 1)
+            : null,
+        child: Text(name),
+      ),
     );
   }
 }

@@ -11,9 +11,10 @@ import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_noise/flame_noise.dart';
 import 'package:flame_test/test_paths.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-class RaycastMaxDistanceExample extends FlameGame
+class RaycastMaxDistanceExample({int? shape})
+    extends FlameGame
     with HasCollisionDetection, TestPathSelectable {
   static const description = '''
 This examples showcases how raycast APIs can be used to detect hits within certain range.
@@ -23,8 +24,7 @@ rotated with the Rotate knob.
 
   /// Shows the shape with the given index in [TestPaths.names], or a random
   /// one if there is none, which is passed to [onShapeLoaded].
-  RaycastMaxDistanceExample({int? shape})
-    : _shape = shape ?? Random().nextInt(TestPaths.count);
+  this : _shape = shape ?? Random().nextInt(TestPaths.count);
 
   static const _maxDistance = 50.0;
   static const _rotateAmplitude = pi * 2;
@@ -184,11 +184,11 @@ rotated with the Rotate knob.
   }
 }
 
-class _Character extends PositionComponent {
-  _Character({required this.maxDistance, super.position, super.anchor});
-
-  final double maxDistance;
-
+class _Character({
+  required final double maxDistance,
+  super.position,
+  super.anchor,
+}) extends PositionComponent {
   final _rayOriginPoint = Offset.zero;
   late final _rayEndPoint = Offset(maxDistance, 0);
   final _rayPaint = BasicPalette.gray.paint();
