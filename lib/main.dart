@@ -3,6 +3,7 @@ import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/flame_for
 import 'package:flame_path_svgs/stories/collision_detection/collision_detection.dart';
 import 'package:flame_path_svgs/stories/experimental/experimental.dart';
 import 'package:flame_path_svgs/stories/input/input.dart';
+import 'package:flame_path_svgs/stories/svg/svg.dart';
 import 'package:flutter/widgets.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -58,7 +59,7 @@ void runAsWidgetbook() {
         // routerStories(),
         // tiledStories(),
         // spritesStories(),
-        // svgStories(),
+        svgStories(),
         // systemStories(),
         // utilsStories(),
         // widgetsStories(),
