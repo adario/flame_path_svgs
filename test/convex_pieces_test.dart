@@ -1,9 +1,9 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
-import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flame_path_svgs/commons/convex_pieces.dart';
 import 'package:flame_path_svgs/commons/svg_test_paths.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/path_wheel_joint.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/revolute_joint.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/utils/path_shape.dart';
 import 'package:flame_test/test_paths.dart';
@@ -270,6 +270,51 @@ void main() {
         });
       }
     }
+
+    group('the car of the path wheel joint example', () {
+      late final List<Path> car;
+      setUpAll(() async => car = await PathWheelJointWorld.loadCar());
+
+      test('is laid out like the car of the wheel joint example', () {
+        final [leftWheel, rightWheel, chassis] = [
+          for (final path in car) path.getBounds(),
+        ];
+        expect(chassis.width, closeTo(4.4, 1e-5));
+        // The wheels are on both sides, under the center of the chassis.
+        final left = leftWheel.center - chassis.center;
+        final right = rightWheel.center - chassis.center;
+        expect(left.dx, closeTo(-1.6, 0.1));
+        expect(right.dx, closeTo(1.6, 0.1));
+        expect(left.dy, greaterThan(0));
+        expect(right.dy, greaterThan(0));
+      });
+
+      for (final (index, name) in [
+        'left wheel',
+        'right wheel',
+        'chassis',
+      ].indexed) {
+        test('$name gives valid pieces that are large enough', () {
+          final path = car[index];
+          final component = PathShape.placementComponent(
+            path,
+            path.getBounds().size.toVector2(),
+            14,
+            contour: null,
+          );
+          final pieces = PathShape.piecesOf(component);
+          expect(pieces, isNotEmpty);
+          for (final (index, piece) in pieces.indexed) {
+            expect(
+              _box2dHull(piece, PathShape.linearSlop).length,
+              greaterThanOrEqualTo(3),
+              reason: 'piece $index: $piece',
+            );
+            expect(_largestSide(piece), greaterThanOrEqualTo(minSide));
+          }
+        });
+      }
+    });
   });
 }
 

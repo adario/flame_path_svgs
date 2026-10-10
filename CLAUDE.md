@@ -13,7 +13,7 @@ It is a trimmed copy of the Flame `examples` app (Widgetbook-based, migrated fro
 - Other sibling dirs in `../`: `flame_extended_svg`, `flutter_games_compilation`, `repaint`, `instructions.txt` (original task prompt).
 - Kept aligned with `../flame_path_shapes` (fork branch `testbed` = `main` + `feat/path-svgs` + `feat/sprite-warp-grid` + `feat/image-contours`), minus what `feat/path-svgs` lacks: `Sprite.contour` (Collidable SpriteComponent, new Sprite Bodies), `WarpEffect`/`HasWarpGrid` (`stories/sprites/`), `convexPieces` in `flame/geometry` (app-local copy in `lib/commons/convex_pieces.dart`, synced from `testbed`), public `PathComponent.polygonsOf`. Compare with `diff -rq -I 'flame_path_s' lib ../flame_path_shapes/lib`. Examples follow upstream syntax (primary constructors, `package:material_ui/material_ui.dart`); don't run `dart format` on files copied verbatim from shapes (their formatting differs).
 - Lints: `flutter_lints` via `analysis_options.yaml` (android/ios/web/macos excluded); `flame_lint` is a dev dependency but not included. `flutter analyze`: 16 pre-existing `info` lints (same as shapes), no errors/warnings (copied example code).
-- Tests: `test/convex_pieces_test.dart` (local `convexPieces`, `PathShape` placements, whole SVG paths at the example sizes are valid Box2D polygons ≥ 0.1 m, with 2 documented Domino exceptions: alien2, spaceship), `test/spawn_layout_test.dart`, `test/widget_test.dart` (Flutter template counter test, always fails). CI: `.github/workflows/main.yml`.
+- Tests: `test/convex_pieces_test.dart` (local `convexPieces`, `PathShape` placements, whole SVG paths at the example sizes are valid Box2D polygons ≥ 0.1 m, with 2 documented Domino exceptions: alien2, spaceship; `car` parts layout and pieces), `test/path_terrain_test.dart` (PathWheelJoint `Terrain`: single open contour, fit, chain points), `test/spawn_layout_test.dart`, `test/widget_test.dart` (Flutter template counter test, always fails). CI: `.github/workflows/main.yml`.
 - Shell note: `lean-ctx` hooks are active; if file/shell access fails, the `_lc` shell function is likely missing (defined in `../instructions.txt`).
 
 ## Layout
@@ -68,8 +68,28 @@ lib/
                             test path (vs. test paths in flame_path_shapes):
                             Domino, Contact Callbacks, RevoluteJoint with
                             Motor, Tappable/Draggable Body, joints
-                            RevoluteJoint/WeldJoint (only those two joints
-                            enabled).
+                            RevoluteJoint/WeldJoint. joints/path_wheel_joint.dart:
+                            PathWheelJoint (WheelJoint copy, reuses its
+                            TrackEnd; kept minimal as a how-to example; local
+                            Terrain: same sinusoid as a Path of 14 cubics, one
+                            per half period between extrema (horizontal
+                            handles 0.3645 x half period, error < 1 mm),
+                            running from the extremum before startX to the one
+                            after endX (past the walls), drawn as the Path;
+                            chainPoints = path.walkContourAt(0, 1, 0.01) (147
+                            points); Chassis/Wheel(position, path) are
+                            PathShapes bodies; PathWheelJointWorld.loadCar()
+                            loads assets/svgs/car.svg with merge: false
+                            (paths 0/1 = left/right wheel, 2 = chassis, 3 =
+                            chassis stroke, ignored) and scales them with one
+                            Matrix4 (transform32) to a 4.4 m chassis; wheel
+                            offsets/joint anchors = bounds centers difference;
+                            Wheel.render draws a radius line (under the
+                            translucent fill); motorSpeed 24 vs 20, as the wheels are smaller:
+                            rim-speed match (~32) flips at 30 fps; the car stops
+                            at the right TrackEnd instead of flipping, as its
+                            bumper, not a wheel, hits it). Only RevoluteJoint, WeldJoint, PathWheelJoint
+                            joints enabled.
     collision_detection/    12 examples (raycast*, rays_in_shape, multiple_shapes, circles, quadtree, ...)
     experimental/           shapes.dart (Polygon.fromPath), layout_component_* examples
     input/                  23 input examples incl. gesture_hitboxes_example.dart

@@ -11,6 +11,7 @@ import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/drag_call
 // import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/filter_joint.dart';
 // import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/motor_joint.dart';
 // import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/mouse_joint.dart';
+import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/path_wheel_joint.dart';
 // import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/prismatic_joint.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/revolute_joint.dart';
 import 'package:flame_path_svgs/stories/bridge_libraries/flame_forge2d/joints/weld_joint.dart';
@@ -171,6 +172,12 @@ WidgetbookComponent jointsStories() {
       //   codeLink: link('joints/wheel_joint.dart'),
       //   info: WheelJointExample.description,
       // ),
+      ExampleUseCase(
+        name: 'PathWheelJoint',
+        builder: (_) => GameWidget(game: PathWheelJointExample()),
+        codeLink: link('joints/path_wheel_joint.dart'),
+        info: PathWheelJointExample.description,
+      ),
     ],
   );
 }
