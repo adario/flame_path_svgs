@@ -12,11 +12,11 @@ dependencies:
     sdk: flutter
 
   collection: ^1.18.0
-  flame: ^1.38.2
-  flame_forge2d: ^0.20.0
-  flame_noise: ^0.3.3+23
-  flame_svg: ^2.0.0
-  flame_test: ^2.3.1
+  flame: ^2.0.0-dev.1
+  flame_forge2d: ^0.21.0-dev.1
+  flame_noise: ^0.3.4-dev.1
+  flame_svg: ^3.0.0-dev.1
+  flame_test: ^3.0.0-dev.1
   material_ui: ^1.0.0
   meta: ^1.19.0
   url_launcher: ^6.3.0
